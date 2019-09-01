@@ -42,8 +42,13 @@
 const int WIDTH = 800;
 const int HEIGHT = 600;
 const int MAX_FRAMES_IN_FLIGHT = 2;
-const int MAX_STAGING_BUFFERS = 10;
+const int MAX_SINGLE_COMMAND_BUFFERS = 5;
+const int MAX_STAGING_BUFFERS = 25;
 const int TIMEOUT = 10;
+const int BLOCK_SIZE = 16;
+const int RENDER_CHUNKS = 3;
+const int ALLOC_SIZE = BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS;
+const int CUBE_ALLOC = 92;
 
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
@@ -61,15 +66,19 @@ const bool enableValidationLayers = true;
 #endif
 
 #ifdef NDEBUG
-std::ostream& operator<<(std::ostream &out,const glm::vec3 vector){
-  out<<vector[0] << "  " << vector[1] << "  " << vector[2];
+std::ostream &operator<<(std::ostream &out, const glm::vec3 vector) {
+  out << vector[0] << "  " << vector[1] << "  " << vector[2];
+  return out;
+}
+std::ostream &operator<<(std::ostream &out, std::vector<size_t> vector) {
+  out << vector[0] << "  " << vector[1] << "  " << vector[2]<<std::endl;
   return out;
 }
 #endif
 
 #include "Ubo.hpp"
-#include "vulkan_utils.hpp"
 #include "fileIO.hpp"
+#include "vulkan_utils.hpp"
 #include "Vkx_impl.hpp"
 #include "swapChain.hpp"
 

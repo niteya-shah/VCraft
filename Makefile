@@ -7,12 +7,14 @@ CFLAGS = -std=c++17 -I$(VULKAN_SDK_PATH)/include -I$(STB_INCLUDE_PATH) -I$(TINYO
 
 LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `sdl2-config --cflags --libs` -lvulkan
 
+remake = $(touch VulkanTest.out)
+
 VulkanTest.out: main.cpp
 	g++ $(CFLAGS) main.cpp $(LDFLAGS) -o VulkanTest.out
 
 .PHONY: test clean
 
-test: VulkanTest
+test: VulkanTest.out
 	LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/vulkan/explicit_layer.d ./VulkanTest.out
 
 clean:
