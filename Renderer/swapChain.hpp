@@ -1,6 +1,6 @@
+#include <algorithm>
 #include <vector>
 #include <vulkan/vulkan.h>
-#include <algorithm>
 
 #ifndef VkX_swapchain
 #define VkX_swapchain
@@ -124,8 +124,7 @@ SwapChainSupportDetails VkX::querySwapChainSupport(VkPhysicalDevice device) {
                                             &details.capabilities);
 
   uint32_t formatCount;
-  vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount,
-                                       nullptr);
+  vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
   if (formatCount != 0) {
     details.formats.resize(formatCount);
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount,
@@ -133,8 +132,8 @@ SwapChainSupportDetails VkX::querySwapChainSupport(VkPhysicalDevice device) {
   }
 
   uint32_t presentModeCount;
-  vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface,
-                                            &presentModeCount, nullptr);
+  vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount,
+                                            nullptr);
   if (presentModeCount != 0) {
     details.presentModes.resize(presentModeCount);
     vkGetPhysicalDeviceSurfacePresentModesKHR(

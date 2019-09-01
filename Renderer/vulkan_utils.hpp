@@ -1,8 +1,8 @@
-#include <vulkan/vulkan.hpp>
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <map>
+#include <string>
+#include <unordered_map>
+#include <vector>
+#include <vulkan/vulkan.hpp>
 
 #ifndef Vkx_vulkan_utils
 #define Vkx_vulkan_utils
@@ -120,6 +120,6 @@ template <> struct hash<Vertex> {
            (hash<glm::vec2>()(vertex.texCoord) << 1);
   }
 };
-}
+} // namespace std
 
 #endif

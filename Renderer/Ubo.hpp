@@ -17,10 +17,12 @@ struct UniformBufferObject {
   glm::vec3 axisY;
   glm::vec3 axisZ;
 
-  void setAxis(){
+  void setAxis() {
     axisX = glm::normalize(camera - objectView);
-    axisY = glm::normalize(glm::vec3(axisX[1], - axisX[0], 0));//glm::vec3(axisX[1], - axisX[0], camera[0]) for absolute movement
-    axisZ = glm::normalize(glm::cross(axisX,axisY));
+    axisY = glm::normalize(glm::vec3(
+        axisX[1], -axisX[0],
+        0)); // glm::vec3(axisX[1], - axisX[0], camera[0]) for absolute movement
+    axisZ = glm::normalize(glm::cross(axisX, axisY));
   }
 
   UniformBufferObject() {
@@ -74,25 +76,25 @@ struct UniformBufferObject {
   void UpdateUbo(SDL_Event event) {
 
     switch (event.key.keysym.sym) {
-      //Create Relative Movement
+      // Create Relative Movement
     case SDLK_w:
-      camera = camera - glm::vec3(axisX[0],axisX[1], 0.0f);
-      objectView = objectView - glm::vec3(axisX[0],axisX[1], 0.0f);
+      camera = camera - glm::vec3(axisX[0], axisX[1], 0.0f);
+      objectView = objectView - glm::vec3(axisX[0], axisX[1], 0.0f);
       break;
     case SDLK_s:
-      camera = camera + glm::vec3(axisX[0],axisX[1], 0.0f);
-      objectView = objectView + glm::vec3(axisX[0],axisX[1], 0.0f);
+      camera = camera + glm::vec3(axisX[0], axisX[1], 0.0f);
+      objectView = objectView + glm::vec3(axisX[0], axisX[1], 0.0f);
       break;
     case SDLK_a:
-      camera = camera + glm::vec3(axisY[0],axisY[1], 0.0f);
-      objectView = objectView + glm::vec3(axisY[0],axisY[1], 0.0f);
+      camera = camera + glm::vec3(axisY[0], axisY[1], 0.0f);
+      objectView = objectView + glm::vec3(axisY[0], axisY[1], 0.0f);
       break;
     case SDLK_d:
-      camera = camera - glm::vec3(axisY[0],axisY[1], 0.0f);
-      objectView = objectView - glm::vec3(axisY[0],axisY[1], 0.0f);
+      camera = camera - glm::vec3(axisY[0], axisY[1], 0.0f);
+      objectView = objectView - glm::vec3(axisY[0], axisY[1], 0.0f);
       break;
     case SDLK_KP_2:
-      objectView =  objectView + axisZ;
+      objectView = objectView + axisZ;
       break;
     case SDLK_KP_6:
       objectView = objectView - axisY;
@@ -108,7 +110,7 @@ struct UniformBufferObject {
     }
 
     setAxis();
-    //std::cout<<camera<<"---"<<axisY<< std::endl;
+    // std::cout<<camera<<"---"<<axisY<< std::endl;
 
     view = glm::lookAt(camera, objectView, axis);
   }

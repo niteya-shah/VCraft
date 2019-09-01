@@ -47,7 +47,8 @@ const int MAX_STAGING_BUFFERS = 25;
 const int TIMEOUT = 10;
 const int BLOCK_SIZE = 16;
 const int RENDER_CHUNKS = 3;
-const int ALLOC_SIZE = BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS;
+const int ALLOC_SIZE =
+    BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS;
 const int CUBE_ALLOC = 92;
 
 const std::vector<const char *> validationLayers = {
@@ -71,14 +72,14 @@ std::ostream &operator<<(std::ostream &out, const glm::vec3 vector) {
   return out;
 }
 std::ostream &operator<<(std::ostream &out, std::vector<size_t> vector) {
-  out << vector[0] << "  " << vector[1] << "  " << vector[2]<<std::endl;
+  out << vector[0] << "  " << vector[1] << "  " << vector[2] << std::endl;
   return out;
 }
 #endif
 
+#include "vulkan_utils.hpp"
 #include "Ubo.hpp"
 #include "fileIO.hpp"
-#include "vulkan_utils.hpp"
 #include "Vkx_impl.hpp"
 #include "swapChain.hpp"
 

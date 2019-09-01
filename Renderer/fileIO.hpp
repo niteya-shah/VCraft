@@ -1,6 +1,6 @@
 #include <fstream>
-#include <vector>
 #include <string>
+#include <vector>
 
 #ifndef Vkx_fileio
 #define Vkx_fileio
