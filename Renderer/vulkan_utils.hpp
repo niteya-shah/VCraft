@@ -4,8 +4,8 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 
-#ifndef Vkx_vulkan_utils
-#define Vkx_vulkan_utils
+#ifndef VCraft_vulkan_utils
+#define VCraft_vulkan_utils
 
 struct Vertex {
   glm::vec3 pos;

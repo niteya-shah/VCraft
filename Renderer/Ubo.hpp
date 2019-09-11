@@ -3,8 +3,8 @@
 #include <glm/gtx/hash.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-#ifndef Vkx_ubo
-#define Vkx_ubo
+#ifndef VCraft_ubo
+#define VCraft_ubo
 
 struct UniformBufferObject {
   alignas(16) glm::mat4 model;

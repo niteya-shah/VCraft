@@ -36,8 +36,8 @@
 #include <typeinfo>
 #include <vector>
 
-#ifndef Vkx_defination
-#define Vkx_defination
+#ifndef VCraft_defination
+#define VCraft_defination
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -58,8 +58,8 @@ const std::vector<const char *> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 const std::string NAME = "Vulkan";
-const std::string MODEL_PATH = "/D/git/vulkan/VkX/models/grassBox.obj";
-const std::string TEXTURE_PATH = "/D/git/vulkan/VkX/textures/voxelTerrain.jpg";
+const std::string MODEL_PATH = "/D/git/vulkan/VCraft/models/grassBox.obj";
+const std::string TEXTURE_PATH = "/D/git/vulkan/VCraft/textures/voxelTerrain.jpg";
 
 #ifndef NDEBUG
 const bool enableValidationLayers = false;
@@ -81,7 +81,7 @@ std::ostream &operator<<(std::ostream &out, std::vector<size_t> vector) {
 #include "vulkan_utils.hpp"
 #include "Ubo.hpp"
 #include "fileIO.hpp"
-#include "Vkx_impl.hpp"
+#include "VCraft_impl.hpp"
 #include "swapChain.hpp"
 
 #endif

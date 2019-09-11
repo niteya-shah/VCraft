@@ -1,7 +1,7 @@
-#include "Renderer/Vkx_def.hpp"
+#include "Renderer/VCraft_def.hpp"
 
 int main() {
-  VkX app;
+  VCraft app;
   try {
     app.run();
   } catch (const std::exception &e) {
@@ -10,4 +10,3 @@ int main() {
   }
   return EXIT_SUCCESS;
 }
-      

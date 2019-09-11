@@ -1,6 +1,6 @@
 VULKAN_SDK_PATH = /D/vulkan/1.1.114.0/x86_64
-STB_INCLUDE_PATH = /D/git/vulkan/VkX/libraries
-TINYOBJ_INCLUDE_PATH = /D/git/vulkan/VkX/libraries
+STB_INCLUDE_PATH = /D/git/vulkan/VCraft/libraries
+TINYOBJ_INCLUDE_PATH = /D/git/vulkan/VCraft/libraries
 SDL_INCLUDE_PATH = /usr/include/SDL2
 
 CFLAGS = -std=c++17 -I$(VULKAN_SDK_PATH)/include -I$(STB_INCLUDE_PATH) -I$(TINYOBJ_INCLUDE_PATH) -I$(SDL_INCLUDE_PATH) -O3 -DNDEBUG #-pedantic -Wall -Wextra -Weffc++

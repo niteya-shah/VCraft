@@ -1,7 +1,7 @@
-#ifndef Vkx_impl
-#define Vkx_impl
+#ifndef VCraft_impl
+#define VCraft_impl
 
-class VkX {
+class VCraft {
 public:
   void run() {
     initWindow();
