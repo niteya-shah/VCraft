@@ -14,9 +14,13 @@ private:
   void initVulkan() {
 
     createInstance();
+
     setupDebugMessenger();
+
     createSurface();
+
     pickPhysicalDevice();
+
     createLogicalDevice();
 
     createSwapChain();
@@ -34,6 +38,7 @@ private:
     createSyncObjects();
 
     createColorResources();
+
     createDepthResources();
 
     loadModel();
@@ -41,15 +46,19 @@ private:
     createFramebuffers();
 
     createTextureImage();
+
     createTextureImageView();
+
     createTextureSampler();
 
     createVertexBuffer();
+
     createIndexBuffers();
 
     createUniformBuffer();
 
     createDescriptorPool();
+
     createDescriptorSets();
 
     createCommandBuffers();
@@ -73,8 +82,8 @@ private:
     std::unordered_map<Vertex, uint32_t> uniqueVertices = {};
 
     for (const auto &shape : shapes) {
-      for (int i = -20 - time % 3; i < 20 + time % 3; i++) {
-        for (int j = -20 - time % 3; j < 20 + time % 3; j++) {
+      for (int i = -20 - time ; i < 20 + time ; i++) {
+        for (int j = -20 - time ; j < 20 + time ; j++) {
           for (const auto &index : shape.mesh.indices) {
             Vertex vertex = {};
             vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + 2 * i,
@@ -94,7 +103,8 @@ private:
         }
       }
     }
-    time++;
+    // std::cout<<indices.size()<<std::endl;
+    time = (time + 1) % 10;
   }
 
   void cleanup() {
@@ -369,9 +379,10 @@ private:
     stbi_uc *pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight,
                                 &texChannels, STBI_rgb_alpha);
 
-    mipLevels = static_cast<uint32_t>(
-                    std::floor(std::log2(std::max(texWidth, texHeight)))) +
-                1;
+    // mipLevels = static_cast<uint32_t>(
+    //                 std::floor(std::log2(std::max(texWidth, texHeight)))) +
+    //             1;
+    mipLevels = 1;
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels) {
@@ -716,8 +727,11 @@ private:
   }
 
   void createIndexBuffers() {
-    VkDeviceSize bufferSizeGPU = sizeof(indices[0]) * ALLOC_SIZE * CUBE_ALLOC;
+    VkDeviceSize bufferSizeGPU =
+        sizeof(indices[0]) * ALLOC_SIZE * CUBE_ALLOC_INDEX;
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+    // std::cout<<bufferSize<<" "<<bufferSizeGPU<<std::endl;
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -777,7 +791,8 @@ private:
 
   void createVertexBuffer() {
 
-    VkDeviceSize bufferSizeGPU = sizeof(vertices[0]) * ALLOC_SIZE * CUBE_ALLOC;
+    VkDeviceSize bufferSizeGPU =
+        sizeof(vertices[0]) * ALLOC_SIZE * CUBE_ALLOC_VERTEX;
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
     VkBuffer stagingBuffer;
@@ -838,9 +853,11 @@ private:
     vkResetFences(device, 1,
                   &singleCommandBufferFences[singleCommandBufferCurrent]);
 
-    vkQueueSubmit(graphicsQueue, 1, &submitInfo,
-                  singleCommandBufferFences[singleCommandBufferCurrent]);
-
+    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo,
+                      singleCommandBufferFences[singleCommandBufferCurrent]) !=
+        VK_SUCCESS) {
+      throw std::runtime_error("failed to submit end command");
+    }
     vkWaitForFences(device, 1,
                     &singleCommandBufferFences[singleCommandBufferCurrent],
                     VK_TRUE, std::numeric_limits<uint64_t>::max());
@@ -863,8 +880,12 @@ private:
     vkResetFences(device, 1,
                   &stagingFences[imageIndex][stagingBufferCurrent[imageIndex]]);
 
-    vkQueueSubmit(graphicsQueue, 1, &submitInfo,
-                  stagingFences[imageIndex][stagingBufferCurrent[imageIndex]]);
+    if (vkQueueSubmit(
+            graphicsQueue, 1, &submitInfo,
+            stagingFences[imageIndex][stagingBufferCurrent[imageIndex]]) !=
+        VK_SUCCESS) {
+      throw std::runtime_error("failed to end single Time command Indexed");
+    }
 
     vkWaitForFences(
         device, 1, &stagingFences[imageIndex][stagingBufferCurrent[imageIndex]],
@@ -1127,8 +1148,8 @@ private:
                               VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
                               0, 1, &descriptorSets[i], 0, nullptr);
 
-      vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()),
-                       1, 0, 0, 0);
+      vkCmdDrawIndexed(commandBuffers[i], ALLOC_SIZE * CUBE_ALLOC_INDEX, 1, 0,
+                       0, 0);
 
       vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -1577,7 +1598,7 @@ private:
       else if (event.type == SDL_KEYDOWN)
         ubo.UpdateUbo(event);
       drawFrame();
-      // setUpBlocks();
+      setUpBlocks();
     }
 
     vkDeviceWaitIdle(device);
@@ -1655,8 +1676,6 @@ private:
     }
 
     updateUniformBuffer(imageIndex);
-    updateVertexBuffer(imageIndex);
-    updateIndexBuffer(imageIndex);
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -1706,6 +1725,9 @@ private:
     }
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    updateVertexBuffer(imageIndex);
+    updateIndexBuffer(imageIndex);
   }
 
   void setupDebugMessenger() {

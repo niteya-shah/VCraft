@@ -1,4 +1,4 @@
-VULKAN_SDK_PATH = /D/vulkan/1.1.108.0/x86_64
+VULKAN_SDK_PATH = /D/vulkan/1.1.114.0/x86_64
 STB_INCLUDE_PATH = /D/git/vulkan/VkX/libraries
 TINYOBJ_INCLUDE_PATH = /D/git/vulkan/VkX/libraries
 SDL_INCLUDE_PATH = /usr/include/SDL2

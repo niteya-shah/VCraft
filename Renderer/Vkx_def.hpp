@@ -41,7 +41,7 @@
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
-const int MAX_FRAMES_IN_FLIGHT = 2;
+const int MAX_FRAMES_IN_FLIGHT = 3;
 const int MAX_SINGLE_COMMAND_BUFFERS = 5;
 const int MAX_STAGING_BUFFERS = 25;
 const int TIMEOUT = 10;
@@ -49,7 +49,8 @@ const int BLOCK_SIZE = 16;
 const int RENDER_CHUNKS = 3;
 const int ALLOC_SIZE =
     BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS;
-const int CUBE_ALLOC = 92;
+const int CUBE_ALLOC_VERTEX = 92;
+const int CUBE_ALLOC_INDEX = 36;
 
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
