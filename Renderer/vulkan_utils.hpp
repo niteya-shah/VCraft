@@ -4,13 +4,19 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 
-#ifndef VCraft_vulkan_utils
-#define VCraft_vulkan_utils
+#ifndef VCraftRenderer_vulkan_utils
+#define VCraftRenderer_vulkan_utils
 
 struct Vertex {
   glm::vec3 pos;
   glm::vec3 color;
   glm::vec2 texCoord;
+
+  Vertex(){
+    pos = glm::vec3(0,0,0);
+    color = glm::vec3(0,0,0);
+    texCoord = glm::vec2(0,0);
+  }
 
   static VkVertexInputBindingDescription getBindingDescription() {
     VkVertexInputBindingDescription bindingDescription = {};

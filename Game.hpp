@@ -29,11 +29,11 @@
 #include <iostream>
 #include <optional>
 #include <set>
-#include <stb_image.h>
 #include <stdexcept>
 #include <string>
-#include <tiny_obj_loader.h>
 #include <typeinfo>
+#include <stb_image.h>
+#include <tiny_obj_loader.h>
 #include <vector>
 
 #ifndef VCraft_defination
@@ -67,21 +67,34 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-#ifdef NDEBUG
-std::ostream &operator<<(std::ostream &out, const glm::vec3 vector) {
-  out << vector[0] << "  " << vector[1] << "  " << vector[2];
-  return out;
-}
-std::ostream &operator<<(std::ostream &out, std::vector<size_t> vector) {
-  out << vector[0] << "  " << vector[1] << "  " << vector[2] << std::endl;
-  return out;
-}
-#endif
+#include "Camera/Camera.hpp"
+#include "Renderer/VCraft_Renderer_def.hpp"
+#include "GameWorld/GameWorld.hpp"
 
-#include "vulkan_utils.hpp"
-#include "Ubo.hpp"
-#include "fileIO.hpp"
-#include "VCraft_impl.hpp"
-#include "swapChain.hpp"
+void mainLoop() {
+
+  SDL_Event event;
+  bool quit = false;
+  Camera camera;
+  GameWorld world;
+  VCraftRenderer renderer;
+  renderer.Setup();
+  world.loadModel();
+
+  while (!quit) {
+    SDL_PollEvent(&event);
+    if (event.type == SDL_QUIT)
+      quit = true;
+    else if (event.window.type == SDL_WINDOWEVENT_SIZE_CHANGED)
+      renderer.SetFrameBuffer() = true;
+    else if (event.type == SDL_KEYDOWN)
+      camera.UpdateUbo(event);
+    renderer.drawFrame(camera.ubo, world.getVertices(), world.getIndices());
+    //setUpBlocks();
+  }
+
+  vkDeviceWaitIdle(renderer.GetDevice());
+}
+
 
 #endif

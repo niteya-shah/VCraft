@@ -2,10 +2,10 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-#ifndef VCraft_swapchain
-#define VCraft_swapchain
+#ifndef VCraftRenderer_swapchain
+#define VCraftRenderer_swapchain
 
-void VCraft::createSwapChain() {
+void VCraftRenderer::createSwapChain() {
   SwapChainSupportDetails swapChainSupport =
       querySwapChainSupport(physicalDevice);
 
@@ -71,7 +71,7 @@ void VCraft::createSwapChain() {
   swapChainExtent = extent;
 }
 
-VkSurfaceFormatKHR VCraft::chooseSwapSurfaceFormat(
+VkSurfaceFormatKHR VCraftRenderer::chooseSwapSurfaceFormat(
     const std::vector<VkSurfaceFormatKHR> &availableFormats) {
   for (const auto &availableFormat : availableFormats) {
     if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
@@ -82,7 +82,7 @@ VkSurfaceFormatKHR VCraft::chooseSwapSurfaceFormat(
   return availableFormats[0];
 }
 
-VkPresentModeKHR VCraft::chooseSwapPresentMode(
+VkPresentModeKHR VCraftRenderer::chooseSwapPresentMode(
     const std::vector<VkPresentModeKHR> &availablePresentModes) {
   VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
   for (const auto &availablePresentMode : availablePresentModes) {
@@ -96,7 +96,7 @@ VkPresentModeKHR VCraft::chooseSwapPresentMode(
 }
 
 // std::clamp
-VkExtent2D VCraft::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) {
+VkExtent2D VCraftRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) {
   if (capabilities.currentExtent.width !=
       std::numeric_limits<uint32_t>::max()) {
     return capabilities.currentExtent;
@@ -117,7 +117,7 @@ VkExtent2D VCraft::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities
   }
 }
 
-SwapChainSupportDetails VCraft::querySwapChainSupport(VkPhysicalDevice device) {
+SwapChainSupportDetails VCraftRenderer::querySwapChainSupport(VkPhysicalDevice device) {
   SwapChainSupportDetails details;
 
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,

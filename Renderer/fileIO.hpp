@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 
-#ifndef VCraft_fileio
-#define VCraft_fileio
+#ifndef VCraftRenderer_fileio
+#define VCraftRenderer_fileio
 static std::vector<char> readFile(const std::string &filename) {
   std::ifstream file(filename, std::ios::ate | std::ios::binary);
   if (!file.is_open()) {

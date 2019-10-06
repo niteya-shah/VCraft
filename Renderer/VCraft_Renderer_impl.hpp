@@ -1,14 +1,90 @@
-#ifndef VCraft_impl
-#define VCraft_impl
+#ifndef VCraft_Renderer_impl
+#define VCraft_Renderer_impl
 
-class VCraft {
+class VCraftRenderer {
 public:
-  void run() {
+  void Setup() {
     initWindow();
     initVulkan();
-    mainLoop();
-    cleanup();
   }
+
+  ~VCraftRenderer() { cleanup();}
+
+  void drawFrame(UniformBufferObject &ubo,const std::vector<Vertex> &vertices,
+                 const std::vector<uint32_t> &indices) {
+    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE,
+                    std::numeric_limits<uint64_t>::max());
+
+    uint32_t imageIndex;
+
+    VkResult result = vkAcquireNextImageKHR(
+        device, swapChain, std::numeric_limits<uint64_t>::max(),
+        imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+      recreateSwapChain();
+      return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+      throw std::runtime_error("failed to acquire swap chain image");
+    }
+
+    updateUniformBuffer(imageIndex, ubo);
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+    VkPipelineStageFlags waitStages[] = {
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+
+    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    vkResetFences(device, 1, &inFlightFences[currentFrame]);
+
+    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo,
+                      inFlightFences[currentFrame]) != VK_SUCCESS) {
+      throw std::runtime_error("failed to submit draw command buffer");
+    }
+
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {swapChain};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+
+    presentInfo.pResults = nullptr;
+
+    result = vkQueuePresentKHR(presentQueue, &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
+        framebufferResized) {
+      framebufferResized = false;
+      recreateSwapChain();
+    } else if (result != VK_SUCCESS) {
+      throw std::runtime_error("failed to present swap chain image");
+    }
+
+    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    updateVertexBuffer(imageIndex, vertices);
+    updateIndexBuffer(imageIndex, indices);
+  }
+
+  bool &SetFrameBuffer() { return framebufferResized; }
+
+  const VkDevice &GetDevice() { return device; }
 
 private:
   void initVulkan() {
@@ -41,7 +117,7 @@ private:
 
     createDepthResources();
 
-    loadModel();
+    fetchModel();
 
     createFramebuffers();
 
@@ -62,49 +138,6 @@ private:
     createDescriptorSets();
 
     createCommandBuffers();
-  }
-
-  void loadModel() {
-    std::string warn, err;
-
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err,
-                          MODEL_PATH.c_str())) {
-      throw std::runtime_error(warn + err);
-    }
-    setUpBlocks();
-    time = 0;
-  }
-
-  void setUpBlocks() {
-
-    indices.clear();
-    vertices.clear();
-    std::unordered_map<Vertex, uint32_t> uniqueVertices = {};
-
-    for (const auto &shape : shapes) {
-      for (int i = -20 - time ; i < 20 + time ; i++) {
-        for (int j = -20 - time ; j < 20 + time ; j++) {
-          for (const auto &index : shape.mesh.indices) {
-            Vertex vertex = {};
-            vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + 2 * i,
-                          attrib.vertices[3 * index.vertex_index + 1] + 2 * j,
-                          attrib.vertices[3 * index.vertex_index + 2] - 3};
-
-            vertex.texCoord = {
-                attrib.texcoords[2 * index.texcoord_index + 0],
-                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
-            vertex.color = {0.0f, 0.0f, 0.0f};
-            if (uniqueVertices.count(vertex) == 0) {
-              uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-              vertices.push_back(vertex);
-            }
-            indices.push_back(uniqueVertices[vertex]);
-          }
-        }
-      }
-    }
-    // std::cout<<indices.size()<<std::endl;
-    time = (time + 1) % 10;
   }
 
   void cleanup() {
@@ -166,6 +199,8 @@ private:
 
     SDL_Quit();
   }
+
+  void fetchModel() {}
 
   static VKAPI_ATTR VkBool32 VKAPI_CALL
   debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -382,12 +417,12 @@ private:
     // mipLevels = static_cast<uint32_t>(
     //                 std::floor(std::log2(std::max(texWidth, texHeight)))) +
     //             1;
-    mipLevels = 1;
-    VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels) {
       throw std::runtime_error("failed to load texture image");
     }
+    mipLevels = 1;
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -727,9 +762,10 @@ private:
   }
 
   void createIndexBuffers() {
+    std::vector<uint32_t> indices = {1};
     VkDeviceSize bufferSizeGPU =
-        sizeof(indices[0]) * ALLOC_SIZE * CUBE_ALLOC_INDEX;
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+        sizeof(uint32_t) * ALLOC_SIZE * CUBE_ALLOC_INDEX * 4;
+    VkDeviceSize bufferSize = sizeof(uint32_t)  * indices.size();
 
     // std::cout<<bufferSize<<" "<<bufferSizeGPU<<std::endl;
 
@@ -791,9 +827,10 @@ private:
 
   void createVertexBuffer() {
 
+    std::vector<Vertex> vertices = {Vertex()};
     VkDeviceSize bufferSizeGPU =
-        sizeof(vertices[0]) * ALLOC_SIZE * CUBE_ALLOC_VERTEX;
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+        sizeof(Vertex) * ALLOC_SIZE * CUBE_ALLOC_VERTEX * 4;
+    VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -1586,25 +1623,7 @@ private:
     return score;
   }
 
-  void mainLoop() {
-    SDL_Event event;
-    bool quit = false;
-    while (!quit) {
-      SDL_PollEvent(&event);
-      if (event.type == SDL_QUIT)
-        quit = true;
-      else if (event.window.type == SDL_WINDOWEVENT_SIZE_CHANGED)
-        framebufferResized = true;
-      else if (event.type == SDL_KEYDOWN)
-        ubo.UpdateUbo(event);
-      drawFrame();
-      setUpBlocks();
-    }
-
-    vkDeviceWaitIdle(device);
-  }
-
-  void updateUniformBuffer(uint32_t currentImage) {
+  void updateUniformBuffer(uint32_t currentImage, UniformBufferObject &ubo) {
 
     void *data;
     vkMapMemory(device, uniformBufferMemory[currentImage], 0, sizeof(ubo), 0,
@@ -1613,7 +1632,8 @@ private:
     vkUnmapMemory(device, uniformBufferMemory[currentImage]);
   }
 
-  void updateVertexBuffer(uint32_t currentImage) {
+  void updateVertexBuffer(uint32_t currentImage,
+                          const std::vector<Vertex> &vertices) {
 
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
     VkDeviceMemory stagingBufferMemory;
@@ -1636,7 +1656,8 @@ private:
     vkFreeMemory(device, stagingBufferMemory, nullptr);
   }
 
-  void updateIndexBuffer(uint32_t currentImage) {
+  void updateIndexBuffer(uint32_t currentImage,
+                         const std::vector<uint32_t> &indices) {
 
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
     VkDeviceMemory stagingBufferMemory;
@@ -1657,77 +1678,6 @@ private:
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
-  }
-
-  void drawFrame() {
-    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE,
-                    std::numeric_limits<uint64_t>::max());
-
-    uint32_t imageIndex;
-
-    VkResult result = vkAcquireNextImageKHR(
-        device, swapChain, std::numeric_limits<uint64_t>::max(),
-        imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-      recreateSwapChain();
-      return;
-    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-      throw std::runtime_error("failed to acquire swap chain image");
-    }
-
-    updateUniformBuffer(imageIndex);
-
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
-    VkPipelineStageFlags waitStages[] = {
-        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
-
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
-
-    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
-
-    vkResetFences(device, 1, &inFlightFences[currentFrame]);
-
-    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo,
-                      inFlightFences[currentFrame]) != VK_SUCCESS) {
-      throw std::runtime_error("failed to submit draw command buffer");
-    }
-
-    VkPresentInfoKHR presentInfo = {};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
-
-    VkSwapchainKHR swapChains[] = {swapChain};
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
-
-    presentInfo.pResults = nullptr;
-
-    result = vkQueuePresentKHR(presentQueue, &presentInfo);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
-        framebufferResized) {
-      framebufferResized = false;
-      recreateSwapChain();
-    } else if (result != VK_SUCCESS) {
-      throw std::runtime_error("failed to present swap chain image");
-    }
-
-    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-
-    updateVertexBuffer(imageIndex);
-    updateIndexBuffer(imageIndex);
   }
 
   void setupDebugMessenger() {
@@ -1875,10 +1825,6 @@ private:
 
   std::vector<VkDescriptorSet> descriptorSets;
 
-  std::vector<Vertex> vertices;
-
-  std::vector<uint32_t> indices;
-
   VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 
   VkImage colorImage;
@@ -1953,15 +1899,7 @@ private:
 
   VkImageView depthImageView;
 
-  UniformBufferObject ubo;
-
-  tinyobj::attrib_t attrib;
-
-  std::vector<tinyobj::shape_t> shapes;
-
-  std::vector<tinyobj::material_t> materials;
-
-  int time;
+  int time = 0;
 };
 
 #endif
