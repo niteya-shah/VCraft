@@ -764,7 +764,7 @@ private:
   void createIndexBuffers() {
     std::vector<uint32_t> indices = {1};
     VkDeviceSize bufferSizeGPU =
-        sizeof(uint32_t) * ALLOC_SIZE * CUBE_ALLOC_INDEX * 4;
+        sizeof(uint32_t) * ALLOC_SIZE * CUBE_ALLOC_INDEX;
     VkDeviceSize bufferSize = sizeof(uint32_t)  * indices.size();
 
     // std::cout<<bufferSize<<" "<<bufferSizeGPU<<std::endl;
@@ -829,7 +829,7 @@ private:
 
     std::vector<Vertex> vertices = {Vertex()};
     VkDeviceSize bufferSizeGPU =
-        sizeof(Vertex) * ALLOC_SIZE * CUBE_ALLOC_VERTEX * 4;
+        sizeof(Vertex) * ALLOC_SIZE * CUBE_ALLOC_VERTEX;
     VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
     VkBuffer stagingBuffer;

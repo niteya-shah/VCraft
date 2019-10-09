@@ -29,11 +29,11 @@
 #include <iostream>
 #include <optional>
 #include <set>
+#include <stb_image.h>
 #include <stdexcept>
 #include <string>
-#include <typeinfo>
-#include <stb_image.h>
 #include <tiny_obj_loader.h>
+#include <typeinfo>
 #include <vector>
 
 #ifndef VCraft_defination
@@ -43,12 +43,12 @@ const int WIDTH = 800;
 const int HEIGHT = 600;
 const int MAX_FRAMES_IN_FLIGHT = 3;
 const int MAX_SINGLE_COMMAND_BUFFERS = 5;
-const int MAX_STAGING_BUFFERS = 25;
+const int MAX_STAGING_BUFFERS = 10;
 const int TIMEOUT = 10;
 const int BLOCK_SIZE = 16;
 const int RENDER_CHUNKS = 3;
 const int ALLOC_SIZE =
-    BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS;
+    BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS * 4;
 const int CUBE_ALLOC_VERTEX = 92;
 const int CUBE_ALLOC_INDEX = 36;
 
@@ -59,7 +59,8 @@ const std::vector<const char *> deviceExtensions = {
 
 const std::string NAME = "Vulkan";
 const std::string MODEL_PATH = "/D/git/vulkan/VCraft/models/grassBox.obj";
-const std::string TEXTURE_PATH = "/D/git/vulkan/VCraft/textures/voxelTerrain.jpg";
+const std::string TEXTURE_PATH =
+    "/D/git/vulkan/VCraft/textures/voxelTerrain.jpg";
 
 #ifndef NDEBUG
 const bool enableValidationLayers = false;
@@ -90,11 +91,11 @@ void mainLoop() {
     else if (event.type == SDL_KEYDOWN)
       camera.UpdateUbo(event);
     renderer.drawFrame(camera.ubo, world.getVertices(), world.getIndices());
-    //setUpBlocks();
+    // quit = true;
+    //world.setUpBlocks();
   }
 
   vkDeviceWaitIdle(renderer.GetDevice());
 }
-
 
 #endif

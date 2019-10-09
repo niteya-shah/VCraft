@@ -1,12 +1,15 @@
 #ifndef VCraft_gameWorld_impl
 #define VCraft_gameWorld_impl
 
+#define n 100
+#define w 1
+
 class GameWorld {
 
 public:
   void loadModel() {
     std::string warn, err;
-
+    // TODO : Material unused
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err,
                           MODEL_PATH.c_str())) {
       throw std::runtime_error(warn + err);
@@ -21,8 +24,8 @@ public:
     std::unordered_map<Vertex, uint32_t> uniqueVertices = {};
 
     auto shape = shapes[0];
-    for (int i = -3 - time; i < 3 + time; i++) {
-      for (int j = -3 - time; j < 3 + time; j++) {
+    for (int i = -n - time; i < n + time; i++) {
+      for (int j = -n - time; j < n + time; j++) {
         for (const auto &index : shape.mesh.indices) {
           Vertex vertex = {};
           vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + 2 * i,
@@ -43,9 +46,9 @@ public:
     }
     // std::cout<<indices.size()<<std::endl;
     shape = shapes[1];
-    for (int i = -3 - time; i < 3 + time; i++) {
-      for (int j = -3 - time; j < 3 + time; j++) {
-        for (int k = 0; k < 1; k++) {
+    for (int i = -n - time; i < n + time; i++) {
+      for (int j = -n - time; j < n + time; j++) {
+        for (int k = 0; k < w; k++) {
           for (const auto &index : shape.mesh.indices) {
             Vertex vertex = {};
             vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + 2 * i,
@@ -68,14 +71,15 @@ public:
     }
   }
 
-  const std::vector<uint32_t>& getIndices(){
+  const std::vector<uint32_t> &getIndices() {
+    //pprint(indices.size());
     return indices;
   }
 
-  const std::vector<Vertex>& getVertices(){
+  const std::vector<Vertex> &getVertices() {
+    //pprint(vertices.size());
     return vertices;
   }
-
 
 private:
   tinyobj::attrib_t attrib;

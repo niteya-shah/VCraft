@@ -12,10 +12,10 @@ struct Vertex {
   glm::vec3 color;
   glm::vec2 texCoord;
 
-  Vertex(){
-    pos = glm::vec3(0,0,0);
-    color = glm::vec3(0,0,0);
-    texCoord = glm::vec2(0,0);
+  Vertex() {
+    pos = glm::vec3(0, 0, 0);
+    color = glm::vec3(0, 0, 0);
+    texCoord = glm::vec2(0, 0);
   }
 
   static VkVertexInputBindingDescription getBindingDescription() {
@@ -120,12 +120,11 @@ struct SwapChainSupportDetails {
 namespace std {
 template <> struct hash<Vertex> {
   size_t operator()(Vertex const &vertex) const {
-    return ((hash<glm::vec3>()(vertex.pos) ^
-             (hash<glm::vec3>()(vertex.color) << 1)) >>
-            1) ^
-           (hash<glm::vec2>()(vertex.texCoord) << 1);
+    return hash<glm::vec3>()(vertex.pos);
   }
 };
 } // namespace std
+
+template <typename T> void pprint(T val) { std::cout << val << std::endl; }
 
 #endif
