@@ -33,3 +33,4 @@
 
 # Shaders and Textures
 *.spv
+*.mtl

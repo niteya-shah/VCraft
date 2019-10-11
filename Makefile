@@ -3,19 +3,21 @@ STB_INCLUDE_PATH = /D/git/vulkan/VCraft/libraries
 TINYOBJ_INCLUDE_PATH = /D/git/vulkan/VCraft/libraries
 SDL_INCLUDE_PATH = /usr/include/SDL2
 
-CFLAGS = -std=c++17 -I$(VULKAN_SDK_PATH)/include -I$(STB_INCLUDE_PATH) -I$(TINYOBJ_INCLUDE_PATH) -I$(SDL_INCLUDE_PATH) -O3 -DNDEBUG #-pedantic -Wall -Wextra -Weffc++
+CFLAGS = -std=c++17 -I$(VULKAN_SDK_PATH)/include -I$(VULKAN_SDK_PATH)/bin -I$(VULKAN_SDK_PATH)/lib -I$(STB_INCLUDE_PATH) -I$(TINYOBJ_INCLUDE_PATH) -I$(SDL_INCLUDE_PATH) -DNDEBUG #-pedantic -Wall -Wextra -Weffc++
 
-LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `sdl2-config --cflags --libs` -lvulkan
+LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `sdl2-config --cflags --libs` -lvulkan -L$(VK_LAYER_PATH)
+
+VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/vulkan/explicit_layer.d
 
 remake = $(touch VulkanTest.out)
 
 VulkanTest.out: main.cpp
-	g++ $(CFLAGS) main.cpp $(LDFLAGS) -o VulkanTest.out
+	g++ $(CFLAGS) main.cpp $(LDFLAGS) -O3 -o VulkanTest.out
 
 .PHONY: test clean
 
 test: VulkanTest.out
-	LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/vulkan/explicit_layer.d ./VulkanTest.out
+
 
 clean:
 	rm	-f	VulkanTest.out

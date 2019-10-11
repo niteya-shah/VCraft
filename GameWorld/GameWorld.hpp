@@ -1,8 +1,8 @@
 #ifndef VCraft_gameWorld_impl
 #define VCraft_gameWorld_impl
 
-#define n 100
-#define w 1
+#define n 48
+#define w 5
 
 class GameWorld {
 
@@ -17,69 +17,51 @@ public:
     setUpBlocks();
   }
 
-  void setUpBlocks() {
+  void plotShape(tinyobj::shape_t &shape, tinyobj::attrib_t &attrib,
+                 std::unordered_map<Vertex, uint32_t> &uniqueVertices, int i,
+                 int j, int k) {
+    Vertex vertex = {};
+    for (const auto &index : shape.mesh.indices) {
+      vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + 2 * i,
+                    attrib.vertices[3 * index.vertex_index + 1] + 2 * j,
+                    attrib.vertices[3 * index.vertex_index + 2] - 1 + (2 * k)};
 
+      vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index + 0],
+                         1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
+      vertex.color = {0.0f, 0.0f, 0.0f};
+      // Remove later
+      // int pos = (std::abs(i) % 2) * 2 + (std::abs(j) % 2);
+      // if(pos < 3 && time == 0)
+      //   vertex.color[pos] = 1;
+      if (uniqueVertices.count(vertex) == 0) {
+        uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+        vertices.push_back(vertex);
+      }
+      indices.push_back(uniqueVertices[vertex]);
+    }
+  }
+
+  void setUpBlocks() {
     indices.clear();
     vertices.clear();
     std::unordered_map<Vertex, uint32_t> uniqueVertices = {};
-
-    auto shape = shapes[0];
-    for (int i = -n - time; i < n + time; i++) {
-      for (int j = -n - time; j < n + time; j++) {
-        for (const auto &index : shape.mesh.indices) {
-          Vertex vertex = {};
-          vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + 2 * i,
-                        attrib.vertices[3 * index.vertex_index + 1] + 2 * j,
-                        attrib.vertices[3 * index.vertex_index + 2] - 3};
-
-          vertex.texCoord = {
-              attrib.texcoords[2 * index.texcoord_index + 0],
-              1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
-          vertex.color = {0.0f, 0.0f, 0.0f};
-          if (uniqueVertices.count(vertex) == 0) {
-            uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-            vertices.push_back(vertex);
-          }
-          indices.push_back(uniqueVertices[vertex]);
-        }
+    int pos = 0;
+    for (int i = -n; i < n; i++) {
+      for (int j = -n; j < n; j++) {
+        int pos = (std::abs(i) % 2) * 2 + (std::abs(j) % 2);
+        auto shape = shapes[pos];
+        plotShape(shape, attrib, uniqueVertices, i, j, -1);
       }
     }
-    // std::cout<<indices.size()<<std::endl;
-    shape = shapes[1];
-    for (int i = -n - time; i < n + time; i++) {
-      for (int j = -n - time; j < n + time; j++) {
-        for (int k = 0; k < w; k++) {
-          for (const auto &index : shape.mesh.indices) {
-            Vertex vertex = {};
-            vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + 2 * i,
-                          attrib.vertices[3 * index.vertex_index + 1] + 2 * j,
-                          attrib.vertices[3 * index.vertex_index + 2] - 5 -
-                              2 * k};
-
-            vertex.texCoord = {
-                attrib.texcoords[2 * index.texcoord_index + 0],
-                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
-            vertex.color = {0.0f, 0.0f, 0.0f};
-            if (uniqueVertices.count(vertex) == 0) {
-              uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-              vertices.push_back(vertex);
-            }
-            indices.push_back(uniqueVertices[vertex]);
-          }
-        }
-      }
-    }
+    pprint("indices");
+    pprint(indices.size());
+    pprint("vertices");
+    pprint(vertices.size());
   }
 
-  const std::vector<uint32_t> &getIndices() {
-    //pprint(indices.size());
-    return indices;
-  }
+  const std::vector<uint32_t> &getIndices() { return indices; }
 
-  const std::vector<Vertex> &getVertices() {
-    //pprint(vertices.size());
-    return vertices;
-  }
+  const std::vector<Vertex> &getVertices() { return vertices; }
 
 private:
   tinyobj::attrib_t attrib;

@@ -6,6 +6,10 @@ std::ostream &operator<<(std::ostream &out, const glm::vec3 vector) {
   out << vector[0] << "  " << vector[1] << "  " << vector[2];
   return out;
 }
+std::ostream &operator<<(std::ostream &out, const glm::vec2 vector) {
+  out << vector[0] << "  " << vector[1];
+  return out;
+}
 std::ostream &operator<<(std::ostream &out, std::vector<size_t> vector) {
   out << vector[0] << "  " << vector[1] << "  " << vector[2] << std::endl;
   return out;

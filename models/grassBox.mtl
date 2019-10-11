@@ -1,5 +1,5 @@
 # Blender MTL File: 'grassBox.blend'
-# Material Count: 2
+# Material Count: 4
 
 newmtl grassTop
 Ns 323.999994
@@ -11,7 +11,27 @@ Ni 1.000000
 d 1.000000
 illum 2
 
-newmtl grassTop.002
+newmtl grassTop.001
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.0 0.0 0.0
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl grassTop.005
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.0 0.0 0.0
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl grassTop.006
 Ns 323.999994
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
