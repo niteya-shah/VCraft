@@ -28,8 +28,8 @@ struct Camera {
 
   Camera() {
     ubo.model = glm::mat4(1.0f);
-    camera_location = glm::vec3(3.0f, 0.0f, 1.0f);
-    objectView_location = glm::vec3(0.0f, 0.0f, 1.0f);
+    camera_location = glm::vec3(3.0f, 0.0f, 2.0f);
+    objectView_location = glm::vec3(0.0f, 0.0f, 2.0f);
     ubo.view = glm::lookAt(camera_location, objectView_location, axis);
     ubo.proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / HEIGHT, 0.1f,
                             200.0f);

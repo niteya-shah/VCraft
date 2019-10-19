@@ -5,6 +5,7 @@
 #include <SDL_vulkan.h>
 
 #include <vulkan/vulkan.h>
+#include <vma.hpp>
 //#include <memory> use shared_ptr
 // USE TRANFER QUEUE
 // Read Image barrier
@@ -35,6 +36,11 @@
 #include <tiny_obj_loader.h>
 #include <typeinfo>
 #include <vector>
+#include <cmath>
+#include <random>
+#include <numeric>
+#include <boost/multi_array.hpp>
+#include <boost/array.hpp>
 
 #ifndef VCraft_defination
 #define VCraft_defination
@@ -48,9 +54,9 @@ const int TIMEOUT = 10;
 const int BLOCK_SIZE = 16;
 const int RENDER_CHUNKS = 3;
 const int ALLOC_SIZE =
-    BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS * 4;
-const int CUBE_ALLOC_VERTEX = 92;
-const int CUBE_ALLOC_INDEX = 36;
+    BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS;
+const int CUBE_ALLOC_VERTEX = 512;
+const int CUBE_ALLOC_INDEX = 512;
 
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
@@ -58,7 +64,7 @@ const std::vector<const char *> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 const std::string NAME = "Vulkan";
-const std::string MODEL_PATH = "/D/git/vulkan/VCraft/models/grassBox.obj";
+const std::vector<std::string> MODEL_PATH = {"/D/git/vulkan/VCraft/models/grassBox.obj","/D/git/vulkan/VCraft/models/mudBox.obj"};
 const std::string TEXTURE_PATH =
     "/D/git/vulkan/VCraft/textures/voxelTerrain.jpg";
 
@@ -79,9 +85,7 @@ void mainLoop() {
   Camera camera;
   GameWorld world;
   VCraftRenderer renderer;
-  renderer.Setup();
-  world.loadModel();
-
+  renderer.Setup(world.getIndices(), world.getVertices());
   while (!quit) {
     SDL_PollEvent(&event);
     if (event.type == SDL_QUIT)
@@ -90,8 +94,9 @@ void mainLoop() {
       renderer.SetFrameBuffer() = true;
     else if (event.type == SDL_KEYDOWN)
       camera.UpdateUbo(event);
+    //world.setUpBlocks();
     renderer.drawFrame(camera.ubo, world.getVertices(), world.getIndices());
-    // quit = true;
+    //quit = true;
     //world.setUpBlocks();
   }
 

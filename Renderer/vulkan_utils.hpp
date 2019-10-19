@@ -7,6 +7,8 @@
 #ifndef VCraftRenderer_vulkan_utils
 #define VCraftRenderer_vulkan_utils
 
+#define ERR_GUARD_VULKAN(Expr) do { VkResult res__ = (Expr); if (res__ < 0) assert(0); } while(0)
+
 template <typename T> void pprint(T val) { std::cout << val << std::endl; }
 
 struct Vertex {
@@ -129,5 +131,7 @@ template <> struct hash<Vertex> {
   }
 };
 } // namespace std
+
+
 
 #endif
