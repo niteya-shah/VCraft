@@ -14,7 +14,7 @@ VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/vulkan/explicit_layer.d
 remake = $(touch VulkanTest.out)
 
 VulkanTest.out: main.cpp
-	g++ $(CFLAGS) main.cpp $(LDFLAGS) -O3 -o VulkanTest.out
+	clang++ $(CFLAGS) main.cpp $(LDFLAGS) -O3 -o VulkanTest.out
 
 .PHONY: test clean
 

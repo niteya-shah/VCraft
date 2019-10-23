@@ -3,15 +3,18 @@
 
 class VCraftRenderer {
 public:
-  void Setup(const std::vector<uint32_t> &indices,const std::vector<Vertex> &vertices) {
+  void Setup(const std::vector<uint32_t> &indices,
+             const std::vector<Vertex> &vertices,
+             const std::vector<Vertex> &skyboxVertices) {
     initWindow();
-    initVulkan(indices, vertices);
+    initVulkan(indices, vertices, skyboxVertices);
   }
 
   ~VCraftRenderer() { cleanup(); }
 
   void drawFrame(UniformBufferObject &ubo, const std::vector<Vertex> &vertices,
-                 const std::vector<uint32_t> &indices) {
+                 const std::vector<uint32_t> &indices,
+                 const std::vector<Vertex> &skyboxVertices) {
 
     ERR_GUARD_VULKAN(vkWaitForFences(device, 1, &inFlightFences[currentFrame],
                                      VK_TRUE,
@@ -29,7 +32,6 @@ public:
       throw std::runtime_error("failed to acquire swap chain image");
     }
 
-    updateUniformBuffer(imageIndex, ubo);
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -80,9 +82,16 @@ public:
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
-    // updateVertexBuffer(imageIndex, vertices);
-    //
-    // updateIndexBuffer(imageIndex, indices);
+    if (modelChanged) {
+      updateVertexBuffer(imageIndex, vertices);
+
+      updateIndexBuffer(imageIndex, indices);
+
+      modelChanged = false;
+    }
+    updateUniformBuffer(imageIndex, ubo);
+
+    updateSkyBoxVertexBuffer(imageIndex, skyboxVertices);
   }
 
   bool &SetFrameBuffer() { return framebufferResized; }
@@ -91,7 +100,8 @@ public:
 
 private:
   void initVulkan(const std::vector<uint32_t> &indices,
-                  const std::vector<Vertex> &vertices) {
+                  const std::vector<Vertex> &vertices,
+                  const std::vector<Vertex> &skyboxVertices) {
 
     createInstance();
 
@@ -137,6 +147,8 @@ private:
 
     createIndexBuffers(indices);
 
+    createSkyboxVertexBuffer(skyboxVertices);
+
     createUniformBuffer();
 
     createDescriptorPool();
@@ -163,6 +175,9 @@ private:
       vmaDestroyBuffer(allocator, vertexBuffer[imc], vertexBufferMemory[imc]);
 
       vmaDestroyBuffer(allocator, indexBuffer[imc], indexBufferMemory[imc]);
+
+      vmaDestroyBuffer(allocator, skyboxVertexBuffer[imc],
+                       skyBoxVertexBufferMemory[imc]);
     }
 
     for (size_t syncObject = 0; syncObject < MAX_FRAMES_IN_FLIGHT;
@@ -751,7 +766,8 @@ private:
   }
 
   void createIndexBuffers(const std::vector<uint32_t> &indices) {
-    VkDeviceSize bufferSizeGPU = sizeof(uint32_t) * ALLOC_SIZE * CUBE_ALLOC_INDEX;//indices.size() * 100;
+    VkDeviceSize bufferSizeGPU = sizeof(uint32_t) * ALLOC_SIZE *
+                                 CUBE_ALLOC_INDEX; // indices.size() * 100;
     VkDeviceSize bufferSize = sizeof(uint32_t) * indices.size();
 
     VkBuffer stagingBuffer;
@@ -767,11 +783,10 @@ private:
     indexBuffer.resize(swapChainImages.size());
     indexBufferMemory.resize(swapChainImages.size());
     for (size_t imc = 0; imc < swapChainImages.size(); imc++) {
-      createBuffer(bufferSizeGPU,
-                   VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-                       VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                   VMA_MEMORY_USAGE_GPU_ONLY, indexBuffer[imc],
-                   indexBufferMemory[imc]);
+      createBuffer(
+          bufferSizeGPU,
+          VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+          VMA_MEMORY_USAGE_GPU_ONLY, indexBuffer[imc], indexBufferMemory[imc]);
       copyBuffer(stagingBuffer, indexBuffer[imc], bufferSize, imc);
     }
 
@@ -797,7 +812,8 @@ private:
 
   void createVertexBuffer(const std::vector<Vertex> &vertices) {
 
-    VkDeviceSize bufferSizeGPU = sizeof(Vertex) * ALLOC_SIZE * CUBE_ALLOC_VERTEX;//vertices.size() * 100;
+    VkDeviceSize bufferSizeGPU = sizeof(Vertex) * ALLOC_SIZE *
+                                 CUBE_ALLOC_VERTEX; // vertices.size() * 100;
     VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
     VkBuffer stagingBuffer;
@@ -820,6 +836,36 @@ private:
                    vertexBufferMemory[imc]);
 
       copyBuffer(stagingBuffer, vertexBuffer[imc], bufferSize, imc);
+    }
+
+    vmaDestroyBuffer(allocator, stagingBuffer, stagingBufferMemory);
+  }
+
+  void createSkyboxVertexBuffer(const std::vector<Vertex> &vertices) {
+
+    VkDeviceSize bufferSizeGPU = sizeof(Vertex) * vertices.size();
+    VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
+
+    VkBuffer stagingBuffer;
+    VmaAllocation stagingBufferMemory;
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingBufferMemory);
+
+    void *data;
+    ERR_GUARD_VULKAN(vmaMapMemory(allocator, stagingBufferMemory, &data));
+    memcpy(data, vertices.data(), bufferSize);
+    vmaUnmapMemory(allocator, stagingBufferMemory);
+
+    skyboxVertexBuffer.resize(swapChainImages.size());
+    skyBoxVertexBufferMemory.resize(swapChainImages.size());
+    for (size_t imc = 0; imc < swapChainImages.size(); imc++) {
+      createBuffer(bufferSizeGPU,
+                   VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                   VMA_MEMORY_USAGE_GPU_ONLY, skyboxVertexBuffer[imc],
+                   skyBoxVertexBufferMemory[imc]);
+
+      copyBuffer(stagingBuffer, skyboxVertexBuffer[imc], bufferSize, imc);
     }
 
     vmaDestroyBuffer(allocator, stagingBuffer, stagingBufferMemory);
@@ -1153,6 +1199,13 @@ private:
 
       vkCmdDrawIndexed(commandBuffers[i], indices.size(), 1, 0, 0, 0);
 
+      VkBuffer skyboxvertexBuffers[] = {skyboxVertexBuffer[i]};
+      vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, skyboxvertexBuffers,
+                             offsets);
+      vkCmdBindDescriptorSets(commandBuffers[i],
+                              VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+                              0, 1, &descriptorSets[i], 0, nullptr);
+      vkCmdDraw(commandBuffers[i], 36, 1, 0, 0);
       vkCmdEndRenderPass(commandBuffers[i]);
 
       if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
@@ -1402,13 +1455,14 @@ private:
     colorBlending.blendConstants[2] = 0.0f;
     colorBlending.blendConstants[3] = 0.0f;
 
-    VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_VIEWPORT,
-                                      VK_DYNAMIC_STATE_LINE_WIDTH};
+    std::array<VkDynamicState, 3> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
+                                                   VK_DYNAMIC_STATE_SCISSOR,
+                                                   VK_DYNAMIC_STATE_LINE_WIDTH};
 
     VkPipelineDynamicStateCreateInfo dynamicState = {};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicState.dynamicStateCount = 2;
-    dynamicState.pDynamicStates = dynamicStates;
+    dynamicState.dynamicStateCount = dynamicStates.size();
+    dynamicState.pDynamicStates = dynamicStates.data();
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -1617,6 +1671,27 @@ private:
     vmaDestroyBuffer(allocator, stagingBuffer, stagingBufferMemory);
   }
 
+  void updateSkyBoxVertexBuffer(uint32_t currentImage,
+                                const std::vector<Vertex> &vertices) {
+
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    VmaAllocation stagingBufferMemory;
+    VkBuffer stagingBuffer;
+
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingBufferMemory);
+
+    void *data;
+    ERR_GUARD_VULKAN(vmaMapMemory(allocator, stagingBufferMemory, &data));
+    memcpy(data, vertices.data(), bufferSize);
+    vmaUnmapMemory(allocator, stagingBufferMemory);
+
+    copyBuffer(stagingBuffer, skyboxVertexBuffer[currentImage], bufferSize,
+               currentImage);
+
+    vmaDestroyBuffer(allocator, stagingBuffer, stagingBufferMemory);
+  }
+
   void updateIndexBuffer(uint32_t currentImage,
                          const std::vector<uint32_t> &indices) {
 
@@ -1801,7 +1876,13 @@ private:
 
   std::vector<VmaAllocation> vertexBufferMemory;
 
+  std::vector<VkBuffer> skyboxVertexBuffer;
+
+  std::vector<VmaAllocation> skyBoxVertexBufferMemory;
+
   bool framebufferResized = false;
+
+  bool modelChanged = false;
 
   std::vector<size_t> stagingBufferCurrent;
 

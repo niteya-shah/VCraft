@@ -17,6 +17,7 @@ struct Camera {
   glm::vec3 axisX;
   glm::vec3 axisY;
   glm::vec3 axisZ;
+  glm::vec3 delta_pos;
 
   void setAxis() {
     axisX = glm::normalize(camera_location - objectView_location);
@@ -28,13 +29,13 @@ struct Camera {
 
   Camera() {
     ubo.model = glm::mat4(1.0f);
-    camera_location = glm::vec3(3.0f, 0.0f, 2.0f);
-    objectView_location = glm::vec3(0.0f, 0.0f, 2.0f);
+    camera_location = glm::vec3(3.0f, 0.0f, 4.0f);
+    objectView_location = glm::vec3(0.0f, 0.0f, 4.0f);
     ubo.view = glm::lookAt(camera_location, objectView_location, axis);
     ubo.proj = glm::perspective(glm::radians(45.0f), (float)WIDTH / HEIGHT, 0.1f,
                             200.0f);
     ubo.proj[1][1] *= -1;
-
+    delta_pos = glm::vec3(3.0f, 0.0f, 4.0f);
     setAxis();
   }
   // Set for absolute 3D movement;
@@ -105,6 +106,14 @@ struct Camera {
       break;
     case SDLK_KP_8:
       objectView_location = objectView_location - axisZ;
+      break;
+    case SDLK_SPACE:
+      objectView_location = objectView_location + glm::vec3(0,0,1);
+      camera_location = camera_location + glm::vec3(0,0,1);
+      break;
+    case SDLK_LCTRL:
+      objectView_location = objectView_location - glm::vec3(0,0,0.2);
+      camera_location = camera_location - glm::vec3(0,0,0.2);
       break;
     default:
       break;

@@ -84,14 +84,14 @@ VkSurfaceFormatKHR VCraftRenderer::chooseSwapSurfaceFormat(
 
 VkPresentModeKHR VCraftRenderer::chooseSwapPresentMode(
     const std::vector<VkPresentModeKHR> &availablePresentModes) {
-  VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
-  for (const auto &availablePresentMode : availablePresentModes) {
-    if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-      return availablePresentMode;
-    } else if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-      bestMode = availablePresentMode;
-    }
-  }
+  VkPresentModeKHR bestMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+  // for (const auto &availablePresentMode : availablePresentModes) {
+  //   if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+  //     return availablePresentMode;
+  //   } else if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
+  //     bestMode = availablePresentMode;
+  //   }
+  // }
   return bestMode;
 }
 

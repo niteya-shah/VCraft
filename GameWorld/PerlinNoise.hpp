@@ -28,11 +28,17 @@ public:
     }
 
   PerlinNoise(unsigned int seed) {
+    shuffle();
+  }
+
+  void shuffle(){
     perm.resize(256);
+
+    std::random_device rd;
 
     std::iota(perm.begin(), perm.end(), 0);
 
-    std::default_random_engine engine(seed);
+    std::default_random_engine engine(rd());
 
     std::shuffle(perm.begin(), perm.end(), engine);
 

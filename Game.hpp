@@ -4,8 +4,8 @@
 #include <SDL.h>
 #include <SDL_vulkan.h>
 
-#include <vulkan/vulkan.h>
 #include <vma.hpp>
+#include <vulkan/vulkan.h>
 //#include <memory> use shared_ptr
 // USE TRANFER QUEUE
 // Read Image barrier
@@ -19,7 +19,10 @@
 
 #include <algorithm>
 #include <array>
+#include <boost/array.hpp>
+#include <boost/multi_array.hpp>
 #include <chrono>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <functional>
@@ -28,7 +31,9 @@
 #include <glm/gtx/hash.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <iostream>
+#include <numeric>
 #include <optional>
+#include <random>
 #include <set>
 #include <stb_image.h>
 #include <stdexcept>
@@ -36,11 +41,6 @@
 #include <tiny_obj_loader.h>
 #include <typeinfo>
 #include <vector>
-#include <cmath>
-#include <random>
-#include <numeric>
-#include <boost/multi_array.hpp>
-#include <boost/array.hpp>
 
 #ifndef VCraft_defination
 #define VCraft_defination
@@ -64,9 +64,12 @@ const std::vector<const char *> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 const std::string NAME = "Vulkan";
-const std::vector<std::string> MODEL_PATH = {"/D/git/vulkan/VCraft/models/grassBox.obj","/D/git/vulkan/VCraft/models/mudBox.obj"};
+const std::vector<std::string> MODEL_PATH = {
+    "/D/git/vulkan/VCraft/models/grassBox.obj",
+    "/D/git/vulkan/VCraft/models/mudBox.obj"};
+const std::string SKYBOX_PATH = "/D/git/vulkan/VCraft/models/skyBox.obj";
 const std::string TEXTURE_PATH =
-    "/D/git/vulkan/VCraft/textures/voxelTerrain.jpg";
+    "/D/git/vulkan/VCraft/textures/finalTexture.png";
 
 #ifndef NDEBUG
 const bool enableValidationLayers = false;
@@ -82,10 +85,10 @@ void mainLoop() {
 
   SDL_Event event;
   bool quit = false;
-  Camera camera;
   GameWorld world;
   VCraftRenderer renderer;
-  renderer.Setup(world.getIndices(), world.getVertices());
+  renderer.Setup(world.getIndices(), world.getVertices(),
+                 world.getskyboxVertices());
   while (!quit) {
     SDL_PollEvent(&event);
     if (event.type == SDL_QUIT)
@@ -93,11 +96,12 @@ void mainLoop() {
     else if (event.window.type == SDL_WINDOWEVENT_SIZE_CHANGED)
       renderer.SetFrameBuffer() = true;
     else if (event.type == SDL_KEYDOWN)
-      camera.UpdateUbo(event);
-    //world.setUpBlocks();
-    renderer.drawFrame(camera.ubo, world.getVertices(), world.getIndices());
-    //quit = true;
-    //world.setUpBlocks();
+      world.UpdateUbo(event);
+    // world.setUpBlocks();
+    renderer.drawFrame(world.getUbo(), world.getVertices(), world.getIndices(),
+                       world.getskyboxVertices());
+    // quit = true;
+    // world.setUpBlocks();
   }
 
   vkDeviceWaitIdle(renderer.GetDevice());
