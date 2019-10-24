@@ -7,14 +7,14 @@ USR_INCLUDE_PATH = /usr/lib/
 
 CFLAGS = -std=c++17 -I$(VULKAN_SDK_PATH)/include -I$(VULKAN_SDK_PATH)/bin -I$(VULKAN_SDK_PATH)/lib -I$(STB_INCLUDE_PATH) -I$(TINYOBJ_INCLUDE_PATH) -I$(SDL_INCLUDE_PATH) -I$(VMA_INCLUDE_PATH) -I$(USR_INCLUDE_PATH) -DNDEBUG #-pedantic -Wall -Wextra -Weffc++
 
-LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `sdl2-config --cflags --libs` -lvulkan -L$(VK_LAYER_PATH)
+LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `sdl2-config --cflags --libs` -lvulkan -L$(VK_LAYER_PATH) -fopenmp
 
 VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/vulkan/explicit_layer.d
 
 remake = $(touch VulkanTest.out)
 
 VulkanTest.out: main.cpp
-	clang++ $(CFLAGS) main.cpp $(LDFLAGS) -O3 -o VulkanTest.out
+	g++ $(CFLAGS) main.cpp $(LDFLAGS) -O3 -o VulkanTest.out
 
 .PHONY: test clean
 

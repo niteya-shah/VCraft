@@ -96,6 +96,8 @@ public:
 
   bool &SetFrameBuffer() { return framebufferResized; }
 
+  bool &SetModelChanged(){return modelChanged;}
+
   const VkDevice &GetDevice() { return device; }
 
 private:

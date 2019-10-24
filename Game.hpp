@@ -32,6 +32,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <iostream>
 #include <numeric>
+#include <omp.h>
 #include <optional>
 #include <random>
 #include <set>
@@ -55,6 +56,7 @@ const int BLOCK_SIZE = 16;
 const int RENDER_CHUNKS = 3;
 const int ALLOC_SIZE =
     BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS;
+const int RENDER_SIZE = 3;
 const int CUBE_ALLOC_VERTEX = 512;
 const int CUBE_ALLOC_INDEX = 512;
 
@@ -97,9 +99,13 @@ void mainLoop() {
       renderer.SetFrameBuffer() = true;
     else if (event.type == SDL_KEYDOWN)
       world.UpdateUbo(event);
-    // world.setUpBlocks();
-    renderer.drawFrame(world.getUbo(), world.getVertices(), world.getIndices(),
-                       world.getskyboxVertices());
+    if (world.modelChanged()) {
+        //world.setUpBlocks();
+        pprint("hello");
+        renderer.SetModelChanged() = true;
+      }
+      renderer.drawFrame(world.getUbo(), world.getVertices(),
+                         world.getIndices(), world.getskyboxVertices());
     // quit = true;
     // world.setUpBlocks();
   }

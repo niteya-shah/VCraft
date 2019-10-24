@@ -3,10 +3,9 @@
 
 class Grassland : public Chunk {
 public:
-  Grassland() : Chunk(grassland, 3) {}
+  Grassland(int seed, int i, int j, int k) : Chunk(grassland,seed, i, j, k) {}
 
   void Fill() {
-    pn.shuffle();
     for (int i = 0; i < BLOCK_SIZE; i++) {
       for (int j = 0; j < BLOCK_SIZE; j++) {
         for (int k = 0; k < BLOCK_SIZE; k++) {

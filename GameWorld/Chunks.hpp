@@ -12,8 +12,8 @@ typedef block_matrix::index block_index;
 
 struct Chunk {
 
-  Chunk(chunkType _chunk_type, int repeat = -1, int seed = 0)
-      : chunk_type(_chunk_type), block(shape), pn(5) {}
+  Chunk(chunkType _chunk_type, int seed, int i, int j, int k)
+      : chunk_type(_chunk_type), block(shape), pn(seed, i, j ,k) {}
 
   void removeEmpty(const boost::array<block_index, 4> &idx);
 
@@ -29,15 +29,13 @@ struct Chunk {
                  std::vector<Vertex> &vertices, std::vector<uint32_t> &indices,
                  int i, int j, int k);
 
-  void plotSkyBox();
+
 
   chunkType chunk_type;
 
   PerlinNoise pn;
 
   block_matrix block;
-
-  std::vector<Vertex> skyBoxVertices;
 
   constexpr static boost::array<block_index, 4> shape = {
       {BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, 2}};
