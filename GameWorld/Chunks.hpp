@@ -13,7 +13,7 @@ typedef block_matrix::index block_index;
 struct Chunk {
 
   Chunk(chunkType _chunk_type, int seed, int i, int j, int k)
-      : chunk_type(_chunk_type), block(shape), pn(seed, i, j ,k) {}
+      : chunk_type(_chunk_type), block(shape), pn(seed, i, j, k) {}
 
   void removeEmpty(const boost::array<block_index, 4> &idx);
 
@@ -21,15 +21,11 @@ struct Chunk {
 
   static void loadCubes();
 
-  void FillChunk(int blockIdX,int blockIdY,int blockIdZ,std::unordered_map<Vertex, uint32_t> &uniqueVertices,
-                 std::vector<Vertex> &vertices, std::vector<uint32_t> &indices);
+  void FillChunk(int blockIdX, int blockIdY, int blockIdZ,
+                 std::vector<Vertex> &vertices);
 
   void plotShape(tinyobj::shape_t &shape, tinyobj::attrib_t &attrib,
-                 std::unordered_map<Vertex, uint32_t> &uniqueVertices,
-                 std::vector<Vertex> &vertices, std::vector<uint32_t> &indices,
-                 int i, int j, int k);
-
-
+                 std::vector<Vertex> &vertices, int i, int j, int k);
 
   chunkType chunk_type;
 

@@ -22,6 +22,7 @@
 #include <boost/array.hpp>
 #include <boost/multi_array.hpp>
 #include <chrono>
+#include <thread>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -33,6 +34,7 @@
 #include <iostream>
 #include <numeric>
 #include <omp.h>
+#include <memory>
 #include <optional>
 #include <random>
 #include <set>
@@ -42,6 +44,8 @@
 #include <tiny_obj_loader.h>
 #include <typeinfo>
 #include <vector>
+#include <time.h>
+
 
 #ifndef VCraft_defination
 #define VCraft_defination
@@ -87,6 +91,7 @@ void mainLoop() {
 
   SDL_Event event;
   bool quit = false;
+  int lock = 0;
   GameWorld world;
   VCraftRenderer renderer;
   renderer.Setup(world.getIndices(), world.getVertices(),
@@ -100,8 +105,7 @@ void mainLoop() {
     else if (event.type == SDL_KEYDOWN)
       world.UpdateUbo(event);
     if (world.modelChanged()) {
-        //world.setUpBlocks();
-        pprint("hello");
+        world.setUpBlocks();
         renderer.SetModelChanged() = true;
       }
       renderer.drawFrame(world.getUbo(), world.getVertices(),

@@ -83,11 +83,14 @@ public:
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
     if (modelChanged) {
-      updateVertexBuffer(imageIndex, vertices);
 
-      updateIndexBuffer(imageIndex, indices);
+      for(int i = 0;i < 3;i++){
+      updateVertexBuffer(i, vertices);
+
+      updateIndexBuffer(i, indices);
 
       modelChanged = false;
+    }
     }
     updateUniformBuffer(imageIndex, ubo);
 
@@ -954,6 +957,7 @@ private:
 
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
+    vkCmdFillBuffer(commandBuffer, dstBuffer, 0, VK_WHOLE_SIZE, 0);
     VkBufferCopy copyRegion = {};
     copyRegion.srcOffset = 0;
     copyRegion.dstOffset = 0;

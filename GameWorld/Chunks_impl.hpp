@@ -18,7 +18,7 @@ void Chunk::removeEmpty(const boost::array<block_index, 4> &idx) {
   for (int i = 0; i < 3; i++) {
     idxTemp = boost::array<block_index, 4>(idx);
     for (int j = -1; j <= -1; j++) {
-      idxTemp[i] += idx[i] + j;
+      idxTemp[i] = idx[i] + j;
       if (block(idxTemp) == 2) {
         idxTemp = boost::array<block_index, 4>(idx);
         idxTemp[3] = 1;
@@ -36,9 +36,7 @@ void Chunk::loadCubes() {
 }
 
 void Chunk::plotShape(tinyobj::shape_t &shape, tinyobj::attrib_t &attrib,
-                      std::unordered_map<Vertex, uint32_t> &uniqueVertices,
-                      std::vector<Vertex> &vertices,
-                      std::vector<uint32_t> &indices, int i, int j, int k) {
+                      std::vector<Vertex> &vertices, int i, int j, int k) {
   Vertex vertex = {};
   for (const auto &index : shape.mesh.indices) {
     vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + 2 * i,
@@ -49,18 +47,12 @@ void Chunk::plotShape(tinyobj::shape_t &shape, tinyobj::attrib_t &attrib,
                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
     vertex.color = {0.0f, 0.0f, 0.0f};
 
-    if (uniqueVertices.count(vertex) == 0) {
-      uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-      vertices.push_back(vertex);
-    }
-    indices.push_back(uniqueVertices[vertex]);
+    vertices.push_back(vertex);
   }
 }
 
 void Chunk::FillChunk(int blockIdX, int blockIdY, int blockIdZ,
-                      std::unordered_map<Vertex, uint32_t> &uniqueVertices,
-                      std::vector<Vertex> &vertices,
-                      std::vector<uint32_t> &indices) {
+                      std::vector<Vertex> &vertices) {
   for (int i = 0; i < BLOCK_SIZE; i++) {
     for (int j = 0; j < BLOCK_SIZE; j++) {
       for (int k = 0; k > -BLOCK_SIZE; k--) {
@@ -70,9 +62,9 @@ void Chunk::FillChunk(int blockIdX, int blockIdY, int blockIdZ,
         this->removeEmpty(idxCube);
         if (block(idxCube) != 2 && block(idxEmpty) == 1)
           plotShape(Chunk::cubes[block(idxCube)].shapes[pos],
-                    Chunk::cubes[block(idxCube)].attrib, uniqueVertices,
-                    vertices, indices, i + blockIdX * BLOCK_SIZE,
-                    j + blockIdY * BLOCK_SIZE, k + blockIdZ * BLOCK_SIZE);
+                    Chunk::cubes[block(idxCube)].attrib, vertices,
+                    i + blockIdX * BLOCK_SIZE, j + blockIdY * BLOCK_SIZE,
+                    k + blockIdZ * BLOCK_SIZE);
       }
     }
   }

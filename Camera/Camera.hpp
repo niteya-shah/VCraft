@@ -38,7 +38,6 @@ struct Camera {
     ubo.proj[1][1] *= -1;
     delta_pos = glm::vec3(3.0f, 0.0f, 4.0f);
     setAxis();
-    block_info = glm::vec3(static_cast<int>(camera_location[0])%BLOCK_SIZE,static_cast<int>(camera_location[1])%BLOCK_SIZE,static_cast<int>(camera_location[2])%BLOCK_SIZE);
   }
   // Set for absolute 3D movement;
   // void UpdateUbo(SDL_Event event) {
