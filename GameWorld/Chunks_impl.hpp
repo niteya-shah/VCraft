@@ -19,7 +19,7 @@ void Chunk::removeEmpty(const boost::array<block_index, 4> &idx) {
     idxTemp = boost::array<block_index, 4>(idx);
     for (int j = -1; j <= -1; j++) {
       idxTemp[i] = idx[i] + j;
-      if (block(idxTemp) == 2) {
+      if (block(idxTemp) == 256) {
         idxTemp = boost::array<block_index, 4>(idx);
         idxTemp[3] = 1;
         block(idxTemp) = 1;
@@ -39,9 +39,9 @@ void Chunk::plotShape(tinyobj::shape_t &shape, tinyobj::attrib_t &attrib,
                       std::vector<Vertex> &vertices, int i, int j, int k) {
   Vertex vertex = {};
   for (const auto &index : shape.mesh.indices) {
-    vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + 2 * i,
-                  attrib.vertices[3 * index.vertex_index + 1] + 2 * j,
-                  attrib.vertices[3 * index.vertex_index + 2] - 1 + (2 * k)};
+    vertex.pos = {attrib.vertices[3 * index.vertex_index + 0] + i,
+                  attrib.vertices[3 * index.vertex_index + 1] + j,
+                  attrib.vertices[3 * index.vertex_index + 2] - 1 + k};
 
     vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index + 0],
                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
@@ -60,7 +60,7 @@ void Chunk::FillChunk(int blockIdX, int blockIdY, int blockIdZ,
         boost::array<block_index, 4> idxCube = {{i, j, k + BLOCK_SIZE - 1, 0}};
         boost::array<block_index, 4> idxEmpty = {{i, j, k + BLOCK_SIZE - 1, 1}};
         this->removeEmpty(idxCube);
-        if (block(idxCube) != 2 && block(idxEmpty) == 1)
+        if (block(idxCube) != 256 && block(idxEmpty) == 1)
           plotShape(Chunk::cubes[block(idxCube)].shapes[pos],
                     Chunk::cubes[block(idxCube)].attrib, vertices,
                     i + blockIdX * BLOCK_SIZE, j + blockIdY * BLOCK_SIZE,

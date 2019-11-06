@@ -1,9 +1,9 @@
-#ifndef VCraft_Chunk_grass
-#define VCraft_Chunk_grass
+#ifndef VCraft_Chunk_stone
+#define VCraft_Chunk_stone
 
-class Grassland : public Chunk {
+class Stoneland : public Chunk {
 public:
-  Grassland(int seed, int i, int j, int k) : Chunk(grassland,seed, i, j, k) {}
+  Stoneland(int seed, int i, int j, int k) : Chunk(stoneland,seed, i, j, k) {}
 
   void Fill() {
     for (int i = 0; i < BLOCK_SIZE; i++) {

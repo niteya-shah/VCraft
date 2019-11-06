@@ -1,7 +1,7 @@
 #ifndef VCraft_chunk_def
 #define VCraft_chunk_def
 
-enum chunkType { grassland, mudland };
+enum chunkType { grassland, mudland , stoneland};
 
 typedef boost::multi_array<size_t, 4> block_matrix;
 typedef block_matrix::index block_index;
@@ -42,5 +42,9 @@ struct Chunk {
 #include "Chunks_impl.hpp"
 
 #include "Grassland.hpp"
+
+#include "Stoneland.hpp"
+
+#include "Mudland.hpp"
 
 #endif

@@ -19,6 +19,7 @@ struct Camera {
   glm::vec3 axisZ;
   glm::vec3 delta_pos;
   glm::vec3 block_info;
+  float speed = 0.2;
 
   void setAxis() {
     axisX = glm::normalize(camera_location - objectView_location);
@@ -81,20 +82,20 @@ struct Camera {
     switch (event.key.keysym.sym) {
       // Create Relative Movement
     case SDLK_w:
-      camera_location = camera_location - glm::vec3(axisX[0], axisX[1], 0.0f);
-      objectView_location = objectView_location - glm::vec3(axisX[0], axisX[1], 0.0f);
+      camera_location = camera_location - glm::vec3(axisX[0], axisX[1], 0.0f) * speed;
+      objectView_location = objectView_location - glm::vec3(axisX[0], axisX[1], 0.0f) * speed;
       break;
     case SDLK_s:
-      camera_location = camera_location + glm::vec3(axisX[0], axisX[1], 0.0f);
-      objectView_location = objectView_location + glm::vec3(axisX[0], axisX[1], 0.0f);
+      camera_location = camera_location + glm::vec3(axisX[0], axisX[1], 0.0f) * speed;
+      objectView_location = objectView_location + glm::vec3(axisX[0], axisX[1], 0.0f) * speed;
       break;
     case SDLK_a:
-      camera_location = camera_location + glm::vec3(axisY[0], axisY[1], 0.0f);
-      objectView_location = objectView_location + glm::vec3(axisY[0], axisY[1], 0.0f);
+      camera_location = camera_location + glm::vec3(axisY[0], axisY[1], 0.0f) * speed;
+      objectView_location = objectView_location + glm::vec3(axisY[0], axisY[1], 0.0f) * speed;
       break;
     case SDLK_d:
-      camera_location = camera_location - glm::vec3(axisY[0], axisY[1], 0.0f);
-      objectView_location = objectView_location - glm::vec3(axisY[0], axisY[1], 0.0f);
+      camera_location = camera_location - glm::vec3(axisY[0], axisY[1], 0.0f) * speed;
+      objectView_location = objectView_location - glm::vec3(axisY[0], axisY[1], 0.0f) * speed;
       break;
     case SDLK_KP_2:
       objectView_location = objectView_location + axisZ;
@@ -109,12 +110,12 @@ struct Camera {
       objectView_location = objectView_location - axisZ;
       break;
     case SDLK_SPACE:
-      objectView_location = objectView_location + glm::vec3(0,0,1);
-      camera_location = camera_location + glm::vec3(0,0,1);
+      objectView_location = objectView_location + glm::vec3(0,0,1) * speed;
+      camera_location = camera_location + glm::vec3(0,0,1) * speed;
       break;
     case SDLK_LCTRL:
-      objectView_location = objectView_location - glm::vec3(0,0,0.2);
-      camera_location = camera_location - glm::vec3(0,0,0.2);
+      objectView_location = objectView_location - glm::vec3(0,0,1) * speed;
+      camera_location = camera_location - glm::vec3(0,0,1) * speed;
       break;
     default:
       break;

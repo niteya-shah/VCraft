@@ -8,7 +8,7 @@ struct SkyBox {
 
     Cube c(SKYBOX_PATH, air);
     Vertex vertex = {};
-    int i = 1;
+    int i = 100;
     for (const auto &index : c.shapes[0].mesh.indices) {
       vertex.pos = {c.attrib.vertices[3 * index.vertex_index + 0] * i,
                     c.attrib.vertices[3 * index.vertex_index + 1] * i,

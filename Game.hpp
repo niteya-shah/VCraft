@@ -57,10 +57,10 @@ const int MAX_SINGLE_COMMAND_BUFFERS = 5;
 const int MAX_STAGING_BUFFERS = 10;
 const int TIMEOUT = 10;
 const int BLOCK_SIZE = 16;
-const int RENDER_CHUNKS = 3;
+const int RENDER_CHUNKS = 4;
 const int ALLOC_SIZE =
     BLOCK_SIZE * BLOCK_SIZE * BLOCK_SIZE * RENDER_CHUNKS * RENDER_CHUNKS;
-const int RENDER_SIZE = 3;
+const int RENDER_SIZE = 4;
 const int CUBE_ALLOC_VERTEX = 512;
 const int CUBE_ALLOC_INDEX = 512;
 
@@ -72,7 +72,9 @@ const std::vector<const char *> deviceExtensions = {
 const std::string NAME = "Vulkan";
 const std::vector<std::string> MODEL_PATH = {
     "/D/git/vulkan/VCraft/models/grassBox.obj",
-    "/D/git/vulkan/VCraft/models/mudBox.obj"};
+    "/D/git/vulkan/VCraft/models/mudBox.obj",
+    "/D/git/vulkan/VCraft/models/sandBox.obj",
+    "/D/git/vulkan/VCraft/models/stoneBox.obj"};
 const std::string SKYBOX_PATH = "/D/git/vulkan/VCraft/models/skyBox.obj";
 const std::string TEXTURE_PATH =
     "/D/git/vulkan/VCraft/textures/finalTexture.png";

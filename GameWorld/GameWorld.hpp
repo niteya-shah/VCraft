@@ -14,7 +14,7 @@ public:
     std::mt19937 rng(rd());
     std::uniform_int_distribution<std::mt19937::result_type> dist(0, 1023);
     seed = dist(rng);
-    Grassland::loadCubes();
+    Chunk::loadCubes();
     skybox.plotSkyBox();
     setUpBlocks();
     omp_set_num_threads(6);
@@ -38,10 +38,10 @@ public:
       for (int index = 0; index < num_blocks; index++) {
         glm::vec3 loc = con1Dto3D(index, shape);
         loc -= glm::vec3(RENDER_SIZE - current_block[0] + 1, RENDER_SIZE - current_block[1] + 1, 0);
-        grassland[index] = std::make_unique<Grassland>(
+        chunks[index] = std::make_unique<Grassland>(
             Grassland(seed, loc[0], loc[1], loc[2]));
-        grassland[index]->Fill();
-        grassland[index]->FillChunk(loc[0], loc[1], loc[2], vertices_temp);
+        chunks[index]->Fill();
+        chunks[index]->FillChunk(loc[0], loc[1], loc[2], vertices_temp);
       }
 #pragma omp critical
       for (int count = 0; count < vertices_temp.size(); count++) {
@@ -54,26 +54,6 @@ public:
       }
     }
    }
-
-  // for (int i = -RENDER_SIZE + current_block[0]; i <= RENDER_SIZE +
-  // current_block[0]; i++) {
-  //   std::vector<std::vector<Grassland>> tempLayer;
-  //   for (int j = -RENDER_SIZE + current_block[1]; j <= RENDER_SIZE +
-  //   current_block[1]; j++) {
-  //     std::vector<Grassland> tempvec;
-  //     for (int k = 0; k < 2; k++) {
-  //       Grassland grass(seed, i, j, k);
-  //       grass.loadCubes();
-  //       grass.Fill();
-  //       grass.FillChunk(i, j, k, uniqueVertices, vertices, indices);
-  //       tempvec.push_back(grass);
-  //     }
-  //     tempLayer.push_back(tempvec);
-  //   }
-  //   grassland.push_back(tempLayer);
-  // }
-
-
 
   const std::vector<uint32_t> &getIndices() { return indices; }
 
@@ -108,7 +88,7 @@ private:
 
   std::vector<uint32_t> indices;
 
-  std::unique_ptr<Grassland> grassland[num_blocks];
+  std::unique_ptr<Chunk> chunks[num_blocks];
 
   glm::vec3 current_block = glm::vec3(0, 0, 0);
 
