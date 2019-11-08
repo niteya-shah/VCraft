@@ -14,13 +14,17 @@ public:
               static_cast<double>(j) / static_cast<double>(BLOCK_SIZE),
               static_cast<double>(k) / static_cast<double>(BLOCK_SIZE));
           boost::array<block_index, 4> idx = {{i, j, k, 0}};
-          val *= 8;
-          if (val < 1)
+          val *= 18;
+          if (val > 6 && val < 12 )
             block(idx) = 256;
-          else if (val < 2)
+          else if (val < 0 || val > 16)
             block(idx) = 1;
-          else if (val < 4)
+          else if (val < 3 || val > 12)
             block(idx) = 0;
+          else if (val > 7 && val < 16)
+            block(idx) = 2;
+          else if (val > 4 && val < 14)
+            block(idx) = 3;
           else
             block(idx) = 256;
         }

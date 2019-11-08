@@ -29,7 +29,6 @@ public:
     indices.clear();
     vertices.clear();
     std::unordered_map<Vertex, uint32_t> uniqueVertices = {};
-    std::cout<<camera.block_info<<"  "<<current_block<<std::endl;
 #pragma omp parallel
    {
       std::vector<Vertex> vertices_temp;
@@ -38,8 +37,17 @@ public:
       for (int index = 0; index < num_blocks; index++) {
         glm::vec3 loc = con1Dto3D(index, shape);
         loc -= glm::vec3(RENDER_SIZE - current_block[0] + 1, RENDER_SIZE - current_block[1] + 1, 0);
+        int temp_flag = static_cast<int>(loc[0] * loc[1] + loc[0] * loc[0] - loc[2])%2;
+        if(loc[2] < 1)
+          chunks[index] = std::make_unique<Mudland>(
+            Mudland(seed, loc[0], loc[1], loc[2]));
+        else if(temp_flag)
         chunks[index] = std::make_unique<Grassland>(
             Grassland(seed, loc[0], loc[1], loc[2]));
+        else
+        chunks[index] = std::make_unique<Stoneland>(
+            Stoneland(seed, loc[0], loc[1], loc[2]));
+
         chunks[index]->Fill();
         chunks[index]->FillChunk(loc[0], loc[1], loc[2], vertices_temp);
       }
@@ -73,11 +81,7 @@ public:
     if (current_block[0] != camera.block_info[0] ||
         current_block[1] != camera.block_info[1]) {
       current_block = glm::vec3(camera.block_info);
-      // pprint("block info");
-      // std::cout<<camera.block_info[0]<<" "<<camera.block_info[1]<<"
-      // "<<camera.block_info[2]<<" "<<std::endl; pprint("current Block");
-      // std::cout<<current_block[0]<<" "<<current_block[1]<<"
-      // "<<current_block[2]<<" "<<std::endl;
+
       return true;
     } else
       return false;
